@@ -1,6 +1,6 @@
 const STRINGS = 6
 
-// Standard tuning pitch classes (low E, A, D, G, B, high e)
+// Standard tuning (low E, A, D, G, B, high e)
 const OPEN_STRING_PC = [4, 9, 2, 7, 11, 4] // E A D G B e
 
 export default function Fretboard({ startFret, fretsVisible, chord, scalePcs, rootPc }) {
@@ -15,12 +15,12 @@ export default function Fretboard({ startFret, fretsVisible, chord, scalePcs, ro
 
   const stringY = (i) => paddingTop + (STRINGS - 1 - i) * stringSpacing
 
-  // CHORD mode data (existing)
+  // chord mode data 
   const positions = chord?.positions ?? []
   const openStrings = chord?.openStrings ?? []
   const mutedStrings = chord?.mutedStrings ?? []
 
-  // Helpers
+  // helpers
   const notePcAt = (stringIndex, absFret) => {
     const openPc = OPEN_STRING_PC[stringIndex]
     return (openPc + absFret) % 12
@@ -77,7 +77,7 @@ export default function Fretboard({ startFret, fretsVisible, chord, scalePcs, ro
           </text>
         ))}
 
-        {/* SCALE mode dots */}
+        {/* Scale mode dots */}
         {scalePcs ? (
           <>
             {Array.from({ length: STRINGS }).map((_, s) => (
@@ -103,7 +103,7 @@ export default function Fretboard({ startFret, fretsVisible, chord, scalePcs, ro
           </>
         ) : (
           <>
-            {/* CHORD mode fretted notes */}
+            {/* Chord mode fretted notes */}
             {positions.map((pos, idx) => {
               const relativeFret = pos.fret - startFret
               if (relativeFret < 0 || relativeFret >= fretsVisible) return null
@@ -122,7 +122,7 @@ export default function Fretboard({ startFret, fretsVisible, chord, scalePcs, ro
         )}
       </svg>
 
-      {/* Open / muted indicators only in CHORD mode */}
+      {/* Open / muted indicators */}
       {scalePcs ? (
         <div style={{ width: indicatorWidth, marginLeft: 6 }} />
       ) : (

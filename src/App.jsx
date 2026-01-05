@@ -16,7 +16,7 @@ const VIEWS = [
   { id: 3, label: '11–15', startFret: 11, fretsVisible: 5 }
 ]
 
-// ---- Scales (10) ----
+// scales
 const SCALES = [
   { name: 'Major (Ionian)', intervals: [0, 2, 4, 5, 7, 9, 11] },
   { name: 'Natural Minor (Aeolian)', intervals: [0, 2, 3, 5, 7, 8, 10] },
@@ -30,7 +30,7 @@ const SCALES = [
   { name: 'Phrygian Dominant', intervals: [0, 1, 4, 5, 7, 8, 10] }
 ]
 
-// ---- Pitch-class helpers ----
+// pitch class helpers
 const PC = {
   C: 0, 'C#': 1, D: 2, Eb: 3, E: 4, F: 5,
   'F#': 6, G: 7, Ab: 8, A: 9, Bb: 10, B: 11
@@ -67,7 +67,7 @@ function isChordAllowedInMajorKey(chord, keyRoot) {
   return normalized === allowedTriad || normalized === allowed7th
 }
 
-// UI styles you asked for
+// UI
 const modeButtonStyle = (selected) => ({
   background: 'none',
   border: 'none',
@@ -99,7 +99,7 @@ const randomStyle = {
 }
 
 export default function App() {
-  const [mode, setMode] = useState('Chords') // 'Scales' | 'Chords'
+  const [mode, setMode] = useState('Chords')
   const [activeView, setActiveView] = useState(VIEWS[0])
   const [selectedKey, setSelectedKey] = useState('Any')
 
@@ -107,7 +107,7 @@ export default function App() {
   const [voicingIndex, setVoicingIndex] = useState(0)
   const [scaleIndex, setScaleIndex] = useState(0)
 
-  // If switching into Scales mode and key was Any, force a real root (C)
+  // force a real root
   useEffect(() => {
     if (mode === 'Scales' && selectedKey === 'Any') {
       setSelectedKey('C')
@@ -130,7 +130,7 @@ export default function App() {
 
   const scale = SCALES[Math.min(scaleIndex, SCALES.length - 1)]
 
-  // Build scale pitch-class set for Fretboard
+  // scale pitch-class set
   const scaleRoot = selectedKey === 'Any' ? 'C' : selectedKey
   const rootPc = PC[scaleRoot]
   const scalePcs = useMemo(() => {
@@ -138,7 +138,7 @@ export default function App() {
     return new Set(scale.intervals.map((i) => mod12(rootPc + i)))
   }, [mode, scale, rootPc])
 
-  // ---- Carousel actions (mode-dependent) ----
+  // carousel 
   const prevCarousel = () => {
     if (mode === 'Scales') {
       setScaleIndex((i) => (i - 1 + SCALES.length) % SCALES.length)
@@ -172,24 +172,20 @@ export default function App() {
     let r = safeChordIndex
     while (r === safeChordIndex) r = Math.floor(Math.random() * filteredChords.length)
     setChordIndex(r)
-    // keep current voicingIndex if possible; clamp will handle if out of range
   }
 
   const onKeyChange = (e) => {
     const val = e.target.value
     setSelectedKey(val)
 
-    // reset chord/voicing when key changes (chords mode)
+    // reset chord/voicing
     if (mode === 'Chords') {
       setChordIndex(0)
       setVoicingIndex(0)
     }
-    // in scale mode, key just transposes, so no reset needed
   }
 
-  // ---- Keyboard controls ----
-  // L/R always changes carousel (scales or chords).
-  // U/D changes voicing only in Chords mode.
+  // keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
       const tag = (e.target?.tagName || '').toLowerCase()
@@ -229,7 +225,7 @@ export default function App() {
       alignItems: 'center',
       color: '#fff'
     }}>
-      {/* MAIN (centered) */}
+      {/* MAIN */}
       <div style={{
         flex: 1,
         width: '100%',
@@ -258,7 +254,7 @@ export default function App() {
           </button>
         </div>
 
-        {/* Top controls (layout stays same) */}
+        {/* Top controls */}
         <div style={{
           width: 'min(980px, 92vw)',
           display: 'flex',
@@ -287,7 +283,7 @@ export default function App() {
             </select>
           </div>
 
-          {/* Voicing dropdown (hidden in Scales mode) */}
+          {/* Voicing dropdown */}
           {mode === 'Chords' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ opacity: 0.8, fontSize: 13 }}>Voicing</div>
@@ -311,12 +307,11 @@ export default function App() {
               </select>
             </div>
           ) : (
-            // keep spacing so layout stays stable
             <div style={{ width: 230 }} />
           )}
         </div>
 
-        {/* View selector + fretboard */}
+        {/* View selector and fretboard */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginRight: 12 }}>
             {VIEWS.map((view) => (
@@ -356,7 +351,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Info line directly under fretboard */}
+        {/* Info line */}
         <div style={{ marginTop: 6, fontSize: 11, opacity: 0.5 }}>
           {mode === 'Scales' ? (
             <>Scale {scaleIndex + 1}/{SCALES.length} • Key {scaleRoot}</>
@@ -401,7 +396,7 @@ export default function App() {
         </button>
       </div>
 
-      {/* FOOTER (bottom, without breaking centering) */}
+      {/* FOOTER */}
       <div style={{
         paddingBottom: 14,
         fontSize: 11,

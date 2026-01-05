@@ -1,11 +1,4 @@
-// src/chordDbAdapter.js
 import guitarData from '@tombatossals/chords-db/lib/guitar.json'
-
-/**
- * chords-db format (example from guitar.json):
- * chords: { "C": [ { key:"C", suffix:"major", positions:[ { frets:[-1,3,2,0,1,0], fingers:[...], baseFret:1, ...}, ... ] } ], ... }
- * :contentReference[oaicite:5]{index=5}
- */
 
 const SUFFIX_LABEL = {
   major: '',
@@ -15,7 +8,6 @@ const SUFFIX_LABEL = {
   minor7: 'm7',
   sus2: 'sus2',
   sus4: 'sus4',
-  // dataset contains more suffixes; we’ll fall back to suffix string if unknown
 }
 
 function chordName(key, suffix) {
@@ -23,7 +15,7 @@ function chordName(key, suffix) {
   return `${key}${label}`
 }
 
-// Convert frets array [-1,3,2,0,1,0] into your {positions, openStrings, mutedStrings}
+// Convert frets array
 export function fretsToFretboardShape(frets, baseFret = 1) {
   const positions = []
   const openStrings = []
@@ -35,14 +27,14 @@ export function fretsToFretboardShape(frets, baseFret = 1) {
     const f = frets[string]
     if (f === -1) mutedStrings.push(string)
     else if (f === 0) openStrings.push(string)
-    else positions.push({ string, fret: offset + f }) // <-- key fix
+    else positions.push({ string, fret: offset + f })
   }
 
   return { positions, openStrings, mutedStrings }
 }
 
 
-// Flatten chords-db into [{ name, key, type, voicings:[{name, positions...}] }]
+// chords-db -> [{ name, key, type, voicings:[{name, positions...}] }]
 export function buildLibraryFromChordsDb() {
   const out = []
 
@@ -73,7 +65,7 @@ export function buildLibraryFromChordsDb() {
     }
   }
 
-  // Sort for nicer browsing
+  // Sort
   out.sort((a, b) => a.name.localeCompare(b.name))
   return out
 }
