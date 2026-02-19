@@ -234,6 +234,12 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [mode, chord, scaleIndex, safeChordIndex])
 
+  // Track if we're in "no matches" state
+  const hasNoMatches = searchQuery.trim() && filteredChords.length === 0
+  // Fallback to first chord when no matches (to keep fretboard visible)
+  const displayChord = hasNoMatches && ALL_CHORDS.length > 0 ? ALL_CHORDS[0] : chord
+  const displayVoicing = hasNoMatches && displayChord?.voicings?.length > 0 ? displayChord.voicings[0] : voicing
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -338,7 +344,7 @@ export default function App() {
               <select
                 value={safeVoicingIndex}
                 onChange={(e) => setVoicingIndex(Number(e.target.value))}
-                disabled={!chord}
+                disabled={!displayChord}
                 style={{
                   background: '#111',
                   color: '#fff',
@@ -350,7 +356,7 @@ export default function App() {
                   maxWidth: 280
                 }}
               >
-                {(chord?.voicings ?? []).map((v, idx) => (
+                {(displayChord?.voicings ?? []).map((v, idx) => (
                   <option key={v.name} value={idx}>{v.name}</option>
                 ))}
               </select>
@@ -387,17 +393,14 @@ export default function App() {
               scalePcs={scalePcs}
               rootPc={rootPc}
             />
-          ) : (
-            voicing ? (
-              <Fretboard
-                startFret={activeView.startFret}
-                fretsVisible={activeView.fretsVisible}
-                chord={voicing}
-              />
-            ) : (
-              <div style={{ opacity: 0.7 }}>No chords found.</div>
-            )
-          )}
+          ) : displayVoicing ? (
+            <Fretboard
+              startFret={activeView.startFret}
+              fretsVisible={activeView.fretsVisible}
+              chord={displayVoicing}
+            />
+          ) : null
+          }
         </div>
 
         {/* Info line */}
@@ -405,11 +408,13 @@ export default function App() {
           {mode === 'Scales' ? (
             <>Scale {scaleIndex + 1}/{SCALES.length} • Key {scaleRoot}</>
           ) : (
-            filteredChords.length ? (
+            hasNoMatches ? (
+              <>No matches for "{searchQuery}"</>
+            ) : filteredChords.length ? (
               searchQuery.trim() ? (
                 <>Showing {filteredChords.length} matching chords</>
               ) : (
-                <>Chord {safeChordIndex + 1}/{filteredChords.length} • Voicing {safeVoicingIndex + 1}/{chord.voicings.length}</>
+                <>Chord {safeChordIndex + 1}/{filteredChords.length} • Voicing {safeVoicingIndex + 1}/{displayChord.voicings.length}</>
               )
             ) : (
               <>0 chords</>
@@ -435,7 +440,7 @@ export default function App() {
             textAlign: 'center',
             letterSpacing: 0.2
           }}>
-            {mode === 'Scales' ? scale.name : (chord ? chord.name : '—')}
+            {mode === 'Scales' ? scale.name : (hasNoMatches ? 'No matches!' : (displayChord ? displayChord.name : '—'))}
           </div>
 
           <button onClick={nextCarousel} style={chevronStyle} aria-label="Next">
