@@ -24,10 +24,20 @@ const SCALES = [
   { name: 'Major Pentatonic', intervals: [0, 2, 4, 7, 9] },
   { name: 'Blues', intervals: [0, 3, 5, 6, 7, 10] },
   { name: 'Dorian', intervals: [0, 2, 3, 5, 7, 9, 10] },
+  { name: 'Phrygian', intervals: [0, 1, 3, 5, 7, 8, 10] },
+  { name: 'Lydian', intervals: [0, 2, 4, 6, 7, 9, 11] },
   { name: 'Mixolydian', intervals: [0, 2, 4, 5, 7, 9, 10] },
+  { name: 'Locrian', intervals: [0, 1, 3, 5, 6, 8, 10] },
   { name: 'Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 11] },
   { name: 'Melodic Minor (Jazz)', intervals: [0, 2, 3, 5, 7, 9, 11] },
-  { name: 'Phrygian Dominant', intervals: [0, 1, 4, 5, 7, 8, 10] }
+  { name: 'Phrygian Dominant', intervals: [0, 1, 4, 5, 7, 8, 10] },
+  { name: 'Lydian Dominant', intervals: [0, 2, 4, 6, 7, 9, 10] },
+  { name: 'Bebop Dominant', intervals: [0, 2, 4, 5, 7, 9, 10, 11] },
+  { name: 'Whole Tone', intervals: [0, 2, 4, 6, 8, 10] },
+  { name: 'Diminished', intervals: [0, 1, 3, 4, 6, 7, 9, 10] },
+  { name: 'Hungarian Minor', intervals: [0, 2, 3, 6, 7, 8, 11] },
+  { name: 'Gypsy Minor', intervals: [0, 1, 3, 5, 7, 8, 10] },
+  { name: 'Enigmatic', intervals: [0, 1, 4, 5, 7, 8, 10, 11] }
 ]
 
 // pitch class helpers
@@ -287,6 +297,31 @@ export default function App() {
           gap: 12,
           flexWrap: 'wrap'
         }}>
+          {/* Key dropdown (Chords mode only) */}
+          {mode === 'Chords' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ opacity: 0.8, fontSize: 13 }}>Key</div>
+              <select
+                value={selectedKey}
+                onChange={onKeyChange}
+                disabled={searchQuery.trim() !== ''}
+                style={{
+                  background: '#111',
+                  color: '#fff',
+                  border: '1px solid #2a2a2a',
+                  borderRadius: 10,
+                  padding: '8px 10px',
+                  outline: 'none',
+                  opacity: searchQuery.trim() !== '' ? 0.4 : 1,
+                  cursor: searchQuery.trim() !== '' ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {mode === 'Chords' && <option value="Any">Any</option>}
+                {NOTES.map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          )}
+
           {/* Search bar (Chords mode only) */}
           {mode === 'Chords' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -313,29 +348,6 @@ export default function App() {
               />
             </div>
           )}
-
-          {/* Key dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ opacity: 0.8, fontSize: 13 }}>Key</div>
-            <select
-              value={selectedKey}
-              onChange={onKeyChange}
-              disabled={searchQuery.trim() !== ''}
-              style={{
-                background: '#111',
-                color: '#fff',
-                border: '1px solid #2a2a2a',
-                borderRadius: 10,
-                padding: '8px 10px',
-                outline: 'none',
-                opacity: searchQuery.trim() !== '' ? 0.4 : 1,
-                cursor: searchQuery.trim() !== '' ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {mode === 'Chords' && <option value="Any">Any</option>}
-              {NOTES.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </div>
 
           {/* Voicing dropdown */}
           {mode === 'Chords' ? (
