@@ -102,6 +102,7 @@ export default function App() {
   const [mode, setMode] = useState('Chords')
   const [activeView, setActiveView] = useState(VIEWS[0])
   const [selectedKey, setSelectedKey] = useState('Any')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const [chordIndex, setChordIndex] = useState(0)
   const [voicingIndex, setVoicingIndex] = useState(0)
@@ -115,9 +116,20 @@ export default function App() {
   }, [mode, selectedKey])
 
   const filteredChords = useMemo(() => {
-    if (selectedKey === 'Any') return ALL_CHORDS
-    return ALL_CHORDS.filter((c) => isChordAllowedInMajorKey(c, selectedKey))
-  }, [selectedKey])
+    let chords = ALL_CHORDS
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim()
+      chords = chords.filter((c) =>
+        c.name.toLowerCase().includes(query)
+      )
+    }
+
+    // Apply key filter (only if no search query)
+    if (selectedKey === 'Any' || searchQuery.trim()) return chords
+    return chords.filter((c) => isChordAllowedInMajorKey(c, selectedKey))
+  }, [selectedKey, searchQuery])
 
   const safeChordIndex = Math.min(chordIndex, Math.max(0, filteredChords.length - 1))
   const chord = filteredChords[safeChordIndex] ?? filteredChords[0]
@@ -184,6 +196,11 @@ export default function App() {
       setVoicingIndex(0)
     }
   }
+
+  // clear search when switching modes
+  useEffect(() => {
+    setSearchQuery('')
+  }, [mode])
 
   // keyboard shortcuts
   useEffect(() => {
@@ -261,21 +278,52 @@ export default function App() {
           alignItems: 'center',
           justifyContent: 'space-between',
           marginBottom: 6,
-          gap: 12
+          gap: 12,
+          flexWrap: 'wrap'
         }}>
+          {/* Search bar (Chords mode only) */}
+          {mode === 'Chords' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input
+                type="text"
+                placeholder="Search chords..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setChordIndex(0)
+                  setVoicingIndex(0)
+                }}
+                style={{
+                  background: '#111',
+                  color: '#fff',
+                  border: '1px solid #2a2a2a',
+                  borderRadius: 10,
+                  padding: '8px 12px',
+                  outline: 'none',
+                  width: 180,
+                  fontSize: 13,
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+          )}
+
           {/* Key dropdown */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ opacity: 0.8, fontSize: 13 }}>Key</div>
             <select
               value={selectedKey}
               onChange={onKeyChange}
+              disabled={searchQuery.trim() !== ''}
               style={{
                 background: '#111',
                 color: '#fff',
                 border: '1px solid #2a2a2a',
                 borderRadius: 10,
                 padding: '8px 10px',
-                outline: 'none'
+                outline: 'none',
+                opacity: searchQuery.trim() !== '' ? 0.4 : 1,
+                cursor: searchQuery.trim() !== '' ? 'not-allowed' : 'pointer'
               }}
             >
               {mode === 'Chords' && <option value="Any">Any</option>}
@@ -298,7 +346,8 @@ export default function App() {
                   borderRadius: 10,
                   padding: '8px 10px',
                   outline: 'none',
-                  minWidth: 230
+                  minWidth: 230,
+                  maxWidth: 280
                 }}
               >
                 {(chord?.voicings ?? []).map((v, idx) => (
@@ -346,7 +395,7 @@ export default function App() {
                 chord={voicing}
               />
             ) : (
-              <div style={{ opacity: 0.7 }}>No chords for this filter.</div>
+              <div style={{ opacity: 0.7 }}>No chords found.</div>
             )
           )}
         </div>
@@ -357,7 +406,11 @@ export default function App() {
             <>Scale {scaleIndex + 1}/{SCALES.length} • Key {scaleRoot}</>
           ) : (
             filteredChords.length ? (
-              <>Chord {safeChordIndex + 1}/{filteredChords.length} • Voicing {safeVoicingIndex + 1}/{chord.voicings.length}</>
+              searchQuery.trim() ? (
+                <>Showing {filteredChords.length} matching chords</>
+              ) : (
+                <>Chord {safeChordIndex + 1}/{filteredChords.length} • Voicing {safeVoicingIndex + 1}/{chord.voicings.length}</>
+              )
             ) : (
               <>0 chords</>
             )
